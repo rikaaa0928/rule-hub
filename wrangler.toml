@@ -3,15 +3,6 @@ main = "src/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-# Cloudflare Workers KV binding for storing route rules and admin auth
-#
-# When connecting via Cloudflare Dashboard (Deploy from Git):
-# You can bind KV directly in Dashboard:
-#   Settings -> Bindings -> KV Namespace Bindings -> Add binding:
-#   Variable name: RULES_KV
-#   KV Namespace: select your created KV namespace
-#
-# Or specify your KV namespace ID here:
-# [[kv_namespaces]]
-# binding = "RULES_KV"
-# id = "<YOUR_KV_NAMESPACE_ID>"
+[[kv_namespaces]]
+binding = "RULES_KV"
+id = "3da9c4ec3e0245a78ce52a6371ad718b"
