@@ -1,6 +1,6 @@
 # RuleHub ⚡
 
-**RuleHub** is a lightweight, high-performance Cloudflare Worker service for hosting, managing, and distributing proxy routing rule lists. It is designed to work seamlessly with **[Leaf](https://github.com/eycorsican/leaf)** and **[Rog](https://github.com/rikaaa0928/rog)**.
+**RuleHub** is a lightweight, high-performance Cloudflare Worker service for hosting, managing, and distributing proxy routing rule lists. It is designed to work seamlessly with **[Leaf](https://github.com/eycorsican/leaf)** and **[Rog](https://github.com/rikaaa0928/rog)**, supporting **Cloudflare's native GitHub continuous deployment**.
 
 ---
 
@@ -16,53 +16,54 @@
   - **Protected Lists**: Configure an access secret key per list. Clients must provide `https://<domain>/rules/<name>?auth=<key>`.
   - **Public Lists**: Leave the secret key empty to allow public access without authentication.
 - **Zero Frontend Build Pipeline**: The responsive SPA frontend is embedded directly within the Worker, eliminating build complexities.
-- **Continuous Deployment**: Ready-to-use GitHub Actions workflow for zero-touch deployment on `git push`.
+- **Cloudflare Native Git Deployment**: Directly connect your GitHub repository in Cloudflare Dashboard for zero-configuration continuous deployments on every `git push`.
 
 ---
 
-## 🚀 Deployment to Cloudflare
+## 🚀 Native Cloudflare Deployment from GitHub
 
-### Method 1: Deploy via GitHub Actions (Recommended)
+No GitHub Actions required. Cloudflare handles the entire build and deployment pipeline natively:
 
-1. **Create KV Namespace** in Cloudflare:
-   - Go to Cloudflare Dashboard $\to$ **Workers & Pages** $\to$ **KV**.
-   - Create a namespace named `RULES_KV`. Note the **Namespace ID**.
-2. **Update `wrangler.toml`**:
-   - Set `id = "<YOUR_RULES_KV_ID>"` in `wrangler.toml`.
-3. **Configure GitHub Repository Secrets**:
-   - In your GitHub repository $\to$ **Settings** $\to$ **Secrets and variables** $\to$ **Actions**:
-     - `CLOUDFLARE_API_TOKEN`: Cloudflare API token with `Worker:Edit` permissions.
-     - `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare Account ID (visible on Cloudflare Workers dashboard).
-4. **Push to `main`**:
-   - The `.github/workflows/deploy.yml` workflow will automatically test and deploy RuleHub.
+### Step 1: Create KV Namespace in Cloudflare
+1. Log into [Cloudflare Dashboard](https://dash.cloudflare.com/).
+2. In the left navigation, go to **Compute (Workers) & Pages** $\to$ **KV**.
+3. Click **Create a namespace**, enter `RULES_KV`, and click **Add**.
 
 ---
 
-### Method 2: Manual Deploy via CLI
-
+### Step 2: Push to Your GitHub Repository
+Create a repository on GitHub (e.g. `rule-hub`) and push your code:
 ```bash
 cd rule-hub
-
-# 1. Install dependencies
-pnpm install
-
-# 2. Create KV namespace (first time only)
-npx wrangler kv:namespace create RULES_KV
-
-# Copy the returned namespace ID into wrangler.toml:
-# [[kv_namespaces]]
-# binding = "RULES_KV"
-# id = "<your-id>"
-
-# 3. Deploy to Cloudflare Workers
-pnpm run deploy
+git remote add origin git@github.com:<your-username>/rule-hub.git
+git push -u origin main
 ```
+
+---
+
+### Step 3: Connect GitHub Repository in Cloudflare
+1. Go to Cloudflare Dashboard $\to$ **Compute (Workers) & Pages** $\to$ **Overview**.
+2. Click **Create** $\to$ **Worker** $\to$ select **Connect to Git** (or **Import from Git**).
+3. Select your `rule-hub` repository.
+4. Set Build Settings:
+   - **Production branch**: `main`
+   - **Framework preset**: `None`
+   - **Build command**: (Leave empty or `pnpm run build`)
+   - **Deploy command**: (Leave empty)
+5. Add KV Binding:
+   - Go to your Worker's **Settings** $\to$ **Bindings**.
+   - Click **Add** $\to$ **KV Namespace**:
+     - **Variable name**: `RULES_KV` (exact case)
+     - **KV namespace**: select the `RULES_KV` namespace created in Step 1.
+   - Click **Save and deploy**.
+
+Once deployed, Cloudflare gives you a URL like `https://rule-hub.<account>.workers.dev`. Any subsequent push to `main` will automatically trigger Cloudflare's native build and deployment!
 
 ---
 
 ## 🛠️ Getting Started
 
-1. Open your deployed Cloudflare Worker URL in a browser (e.g., `https://rule-hub.<account>.workers.dev`).
+1. Open your deployed Cloudflare Worker URL in a browser.
 2. **First Login / Initialization**:
    - RuleHub will display a setup screen and generate an **Admin Token**.
    - **Save this token securely** in your password manager!

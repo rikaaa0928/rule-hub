@@ -1,6 +1,6 @@
 # RuleHub ⚡
 
-**RuleHub** 是一个专为 **[Leaf](https://github.com/eycorsican/leaf)** 与 **[Rog](https://github.com/rikaaa0928/rog)** 设计的轻量级、高性能路由规则分发与托管服务，基于 **Cloudflare Workers** 与 **Workers KV** 构建，支持从 GitHub 一键自动化部署。
+**RuleHub** 是一个专为 **[Leaf](https://github.com/eycorsican/leaf)** 与 **[Rog](https://github.com/rikaaa0928/rog)** 设计的轻量级、高性能路由规则分发与托管服务，基于 **Cloudflare Workers** 与 **Workers KV** 构建，支持通过 **Cloudflare 自带的 GitHub 集成** 进行原生自动持续部署（Git Push 即发布）。
 
 ---
 
@@ -13,72 +13,68 @@
 - **可视化控制面板 (Web Dashboard)**：
   - 规则列表的增、删、改、查（CRUD）；
   - 支持按格式（`domain-suffix` / `domain-keyword` / `cidr` / `plain`）筛选与关键字检索；
-  - 实时统计有效规则行数（自动剔除 `#` 开头的注释与空行）；
+  - 实时统计有效规则条数（自动剔除 `#` 开头的注释与空行）；
   - 一键复制完整订阅链接、在线查看 Raw 内容；
   - **内置配置生成器**：一键生成 Leaf（`EXTERNAL-SUFFIX` / `EXTERNAL-KEYWORD`）和 Rog（`[[router.data]]`）的配置代码片段。
 - **灵活的权限控制**：
   - **私有保护列表**：配置访问密钥（Secret Key），客户端必须通过 `https://xxx.xxx.xxx/rules/${name}?auth=${key}` 访问；
   - **公开共享列表**：无需配置密钥即可直接免密公开拉取。
-- **纯边缘零构建依赖**：前端 SPA 界面直接由 Worker 内联输出，无需复杂的 Node 前端打包流程。
-- **GitHub 自动部署**：内置 GitHub Actions Workflow，向 `main` 分支推送即可自动部署至 Cloudflare。
+- **纯边缘零构建依赖**：前端 SPA 界面直接由 Worker 内联输出，无需打包静态资源。
+- **Cloudflare 原生 Git 部署**：直接连接 GitHub 仓库，由 Cloudflare 官方构建基础设施负责全自动部署。
 
 ---
 
-## 🚀 部署至 Cloudflare
+## 🚀 Cloudflare 原生从 GitHub 部署步骤
 
-### 方式一：通过 GitHub Actions 自动化部署（推荐）
+无需配置任何 GitHub Actions，直接在 Cloudflare 控制台连接 GitHub 仓库：
 
-1. **在 Cloudflare 创建 KV 命名空间**：
-   - 登录 Cloudflare Dashboard $\to$ **Workers & Pages** $\to$ **KV**。
-   - 创建名为 `RULES_KV` 的命名空间，并复制生成的 **Namespace ID**。
-2. **修改配置文件**：
-   - 在 `wrangler.toml` 中将 `id` 替换为你的 KV ID：
-     ```toml
-     [[kv_namespaces]]
-     binding = "RULES_KV"
-     id = "你的_KV_NAMESPACE_ID"
-     ```
-3. **配置 GitHub 仓库 Secrets**：
-   - 进入你的 GitHub 仓库 $\to$ **Settings** $\to$ **Secrets and variables** $\to$ **Actions**：
-     - `CLOUDFLARE_API_TOKEN`：具有 `Worker:Edit` 权限的 Cloudflare API Token。
-     - `CLOUDFLARE_ACCOUNT_ID`：你的 Cloudflare 账户 ID（可在 Workers 控制台右下角复制）。
-4. **提交代码到 GitHub**：
-   - 推送代码到 `main` 分支即可自动触发 `.github/workflows/deploy.yml` 构建与部署。
+### 第一步：在 Cloudflare 创建 KV 命名空间
+1. 登录 [Cloudflare 控制台](https://dash.cloudflare.com/)。
+2. 左侧导航栏进入 **Compute (Workers) & Pages** $\to$ **KV**。
+3. 点击 **Create a namespace**（创建命名空间），名称填写：`RULES_KV`，点击 **Add**。
 
 ---
 
-### 方式二：本地命令行（CLI）部署
-
+### 第二步：推送到你的 GitHub 仓库
+在 GitHub 上创建一个新仓库（如 `rule-hub`），然后推送本地代码：
 ```bash
 cd rule-hub
-
-# 1. 安装依赖
-pnpm install
-
-# 2. 创建 KV 命名空间（首次）
-npx wrangler kv:namespace create RULES_KV
-
-# 将终端输出中的 namespace id 填入 wrangler.toml
-# [[kv_namespaces]]
-# binding = "RULES_KV"
-# id = "<your-kv-id>"
-
-# 3. 部署到 Cloudflare Workers
-pnpm run deploy
+git remote add origin git@github.com:你的用户名/rule-hub.git
+git push -u origin main
 ```
+
+---
+
+### 第三步：在 Cloudflare 控制台连接 GitHub 仓库
+1. 在 Cloudflare 控制台左侧进入 **Compute (Workers) & Pages** $\to$ **Overview**。
+2. 点击 **Create**（创建）按钮，选择 **Workers**（或 Import from Git / Connect to Git）。
+3. 选择 **Connect to Git**（连接到 Git），授权并选择你在 GitHub 创建的 `rule-hub` 仓库。
+4. 构建设置（Build Settings）：
+   - **Production branch**：`main`
+   - **Framework preset**：选择 `None`
+   - **Build command**：留空或填写 `pnpm run build`
+   - **Deploy command**：留空（使用默认的 Worker 部署）
+5. 绑定 KV 命名空间（Bindings）：
+   - 进入该 Worker 的 **Settings**（设置） $\to$ **Bindings**（绑定）。
+   - 点击 **Add** $\to$ **KV Namespace**：
+     - **Variable name**（变量名）：填写 `RULES_KV`（必须完全一致，大写）
+     - **KV namespace**：选择刚才创建的 `RULES_KV`
+   - 点击 **Save and deploy**（保存并部署）。
+
+部署完成后，Cloudflare 会分配一个类似 `https://rule-hub.<你的前缀>.workers.dev` 的在线域名。后续每次向 `main` 分支 `git push`，Cloudflare 都会自动拉取并部署最新版本！
 
 ---
 
 ## 🛠️ 使用指南
 
-1. 在浏览器中打开 Worker 分配的域名（例如 `https://rule-hub.<你的前缀>.workers.dev`）。
+1. 打开 Worker 分配的域名（如 `https://rule-hub.xxx.workers.dev`）。
 2. **首次登录 / 系统初始化**：
    - 页面会弹出初始化引导并自动生成一个 **Admin Token**；
    - **请务必复制并妥善保存此 Token**（后续登录控制面板的唯一凭据，丢失不可找回）；
    - 点击 **Initialize & Enter Dashboard** 即可完成初始化并进入控制台。
 3. **创建规则列表**：
    - 点击 **+ New Rule List**；
-   - 填写列表名称（如 `streaming-proxy`，仅限英文字母、数字、短横线与下划线）；
+   - 填写列表名称（如 `proxy-domains`，仅限英文字母、数字、短横线与下划线）；
    - 选择规则格式（如 `domain-suffix`、`domain-keyword` 等）；
    - （可选）设置访问密钥，或留空作为公开列表；
    - 在多行编辑框中输入规则列表（一行一条，`#` 开头为注释）；
@@ -153,7 +149,7 @@ select = "proxy_outbound"
 
 ---
 
-## 🧪 自动化测试
+## 🧪 本地测试
 
 ```bash
 cd rule-hub
