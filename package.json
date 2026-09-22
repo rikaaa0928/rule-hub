@@ -1,0 +1,31 @@
+{
+  "name": "rule-hub",
+  "version": "1.0.0",
+  "description": "A lightweight, secure Cloudflare Worker service for hosting and managing routing rules for Leaf and Rog",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "cf-typegen": "wrangler types",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx src/test.ts"
+  },
+  "keywords": [
+    "cloudflare-worker",
+    "proxy",
+    "rules",
+    "leaf",
+    "rog",
+    "routing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250224.0",
+    "@types/node": "^26.6.2",
+    "tsx": "^4.23.15",
+    "typescript": "^5.7.3",
+    "wrangler": "^3.111.0"
+  }
+}

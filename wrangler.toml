@@ -1,0 +1,14 @@
+name = "rule-hub"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cloudflare Workers KV binding for storing route rules and admin auth
+# To create the KV namespace:
+#   npx wrangler kv:namespace create RULES_KV
+# Then replace the `id` below with the generated namespace ID.
+[[kv_namespaces]]
+binding = "RULES_KV"
+id = "RULES_KV_ID_PLACEHOLDER"
+# For local development with wrangler dev:
+# preview_id = "RULES_KV_PREVIEW_ID_PLACEHOLDER"
