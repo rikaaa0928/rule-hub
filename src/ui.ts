@@ -845,14 +845,13 @@ export function renderAppHtml(): string {
 
       const leafSnippet = \`[Rule]
 # External remote rule with 3 retries and 1-hour (3600s) auto refresh
-\${leafRuleType},\${url},PROXY,interval=3600\`;
+\${leafRuleType}, \${url}#interval=3600, PROXY\`;
 
       const rogSnippet = \`# In rog.toml:
 [[router.data]]
 name = "\${item.name}"
 format = "\${item.format}"
-url = "\${url}"
-interval = 3600
+url = "\${url}#interval=3600"
 
 [[router.rule]]
 name = "\${item.name}"

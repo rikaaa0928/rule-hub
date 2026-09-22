@@ -100,10 +100,10 @@ git push -u origin main
 ```ini
 [Rule]
 # 后缀匹配规则：1 小时（3600秒）自动刷新一次，失败自动退避重试
-EXTERNAL-SUFFIX,https://rule-hub.example.workers.dev/rules/proxy-domains?auth=mysecret,PROXY,interval=3600
+EXTERNAL-SUFFIX,https://rule-hub.example.workers.dev/rules/proxy-domains?auth=mysecret#interval=3600,PROXY
 
 # 关键字匹配规则
-EXTERNAL-KEYWORD,https://rule-hub.example.workers.dev/rules/keyword-rules?auth=mysecret,PROXY,interval=3600
+EXTERNAL-KEYWORD,https://rule-hub.example.workers.dev/rules/keyword-rules?auth=mysecret#interval=3600,PROXY
 
 # 兜底规则
 FINAL,DIRECT
@@ -120,8 +120,7 @@ FINAL,DIRECT
 [[router.data]]
 name = "proxy-domains"
 format = "domain-suffix"
-url = "https://rule-hub.example.workers.dev/rules/proxy-domains?auth=mysecret"
-interval = 3600
+url = "https://rule-hub.example.workers.dev/rules/proxy-domains?auth=mysecret#interval=3600"
 
 # 配置路由规则
 [[router.rule]]

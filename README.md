@@ -96,10 +96,10 @@ Add remote rules into the `[Rule]` section of your `leaf.conf`:
 ```ini
 [Rule]
 # Remote domain suffix rule with 1-hour auto-refresh & 3-retry backoff
-EXTERNAL-SUFFIX,https://rule-hub.example.workers.dev/rules/proxy-domains?auth=secret123,PROXY,interval=3600
+EXTERNAL-SUFFIX,https://rule-hub.example.workers.dev/rules/proxy-domains?auth=secret123#interval=3600,PROXY
 
 # Remote domain keyword rule
-EXTERNAL-KEYWORD,https://rule-hub.example.workers.dev/rules/keyword-rules?auth=secret123,PROXY,interval=3600
+EXTERNAL-KEYWORD,https://rule-hub.example.workers.dev/rules/keyword-rules?auth=secret123#interval=3600,PROXY
 
 # Fallback direct
 FINAL,DIRECT
@@ -116,8 +116,7 @@ Define the remote route data and route rule in your `rog.toml`:
 [[router.data]]
 name = "proxy-domains"
 format = "domain-suffix"
-url = "https://rule-hub.example.workers.dev/rules/proxy-domains?auth=secret123"
-interval = 3600
+url = "https://rule-hub.example.workers.dev/rules/proxy-domains?auth=secret123#interval=3600"
 
 # Routing rule
 [[router.rule]]
