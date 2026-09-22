@@ -705,7 +705,7 @@ export function renderAppHtml(): string {
         description: '',
         format: 'domain-suffix',
         auth_key: '',
-        content: '# One rule per line. Lines starting with # are comments.\n'
+        content: '# One rule per line. Lines starting with # are comments.\\n'
       };
 
       if (!isNew) {
@@ -764,7 +764,7 @@ export function renderAppHtml(): string {
                   <label class="form-label" style="margin-bottom:0;">Rules Content</label>
                   <span id="content-stats" style="font-size:0.75rem; color:var(--text-muted)"></span>
                 </div>
-                <textarea id="modal-content" class="form-control" placeholder="example.com\ngoogle.com\n# Comments start with #" oninput="updateContentStats(this.value)">\${detail.content || ''}</textarea>
+                <textarea id="modal-content" class="form-control" placeholder="example.com&#10;google.com&#10;# Comments start with #" oninput="updateContentStats(this.value)">\${detail.content || ''}</textarea>
               </div>
             </div>
             <div class="modal-footer">
